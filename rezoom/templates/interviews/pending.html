@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Pending Confirmations · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h5">Pending Confirmations</h1>
+    <a class="btn btn-light" href="{% url 'emp_dashboard' %}">Back</a>
+  </div>
+
+  {% if items %}
+    <div class="table-responsive glass p-3">
+      <table class="table align-middle mb-0">
+        <thead><tr><th>When</th><th>Job</th><th>Candidate</th><th>Mode/Location</th><th></th></tr></thead>
+        <tbody>
+          {% for iv in items %}
+          <tr>
+            <td>{{ iv.start|date:"M j, Y g:i a" }} – {{ iv.end|date:"g:i a" }}</td>
+            <td>{{ iv.application.job.title }} · {{ iv.application.job.company.name }}</td>
+            <td>{{ iv.application.user.username }}</td>
+            <td>
+              {{ iv.mode|capfirst }}
+              {% if iv.mode == "inperson" %}
+                {% if iv.location %} · {{ iv.location.label }}{% endif %}
+                {% if iv.location_text %} · {{ iv.location_text }}{% endif %}
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-brand" href="{% url 'confirm_interview' iv.id %}">Confirm</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="glass p-4 text-muted">Nothing to confirm right now.</div>
+  {% endif %}
+</div>
+{% endblock %}

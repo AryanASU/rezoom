@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Post a Job · Rezoom{% endblock %}
+{% block content %}
+{% load form_extras %}
+
+<div class="container py-5">
+  <div class="glass p-4 p-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h4 m-0">Post a Job</h1>
+      <a class="btn btn-light" href="{% url 'hr_dashboard' %}">Back</a>
+    </div>
+
+    <form method="post" class="row g-4">
+      {% csrf_token %}
+
+      <div class="col-12 col-lg-6">
+        <div class="card-lite p-3">
+          <h2 class="h6 mb-3">Basics</h2>
+          <label class="form-label">Company</label>{{ form.company|add_class:"form-select mb-3" }}
+          <label class="form-label">Title</label>{{ form.title|add_class:"form-control mb-3" }}
+          <label class="form-label">Department</label>{{ form.department|add_class:"form-control mb-3" }}
+          <label class="form-label">Reports to (user)</label>{{ form.manager|add_class:"form-select mb-3" }}
+          <label class="form-label">Manager name (display)</label>{{ form.manager_name|add_class:"form-control mb-3" }}
+          <div class="row g-3">
+            <div class="col">{{ form.emp_type|add_class:"form-control" }}</div>
+            <div class="col">{{ form.location_mode|add_class:"form-select" }}</div>
+          </div>
+          <label class="form-label mt-3">Location text</label>{{ form.location_text|add_class:"form-control mb-3" }}
+          <label class="form-label">Deadline</label>{{ form.deadline|add_class:"form-control" }}
+        </div>
+
+        <div class="card-lite p-3 mt-3">
+          <h2 class="h6 mb-3">Compensation & Legal</h2>
+          <div class="row g-3">
+            <div class="col">{{ form.salary_min|add_class:"form-control" }}</div>
+            <div class="col">{{ form.salary_max|add_class:"form-control" }}</div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col">{{ form.currency|add_class:"form-control" }}</div>
+            <div class="col">{{ form.pay_period|add_class:"form-select" }}</div>
+          </div>
+          <div class="form-check mt-3">
+            {{ form.visa_sponsorship }} <label class="form-check-label">Visa sponsorship</label>
+          </div>
+          <div class="form-check">
+            {{ form.background_check_required }} <label class="form-check-label">Background check required</label>
+          </div>
+          <label class="form-label mt-2">Security clearance</label>{{ form.security_clearance|add_class:"form-control" }}
+          <label class="form-label mt-2">EEO text</label>{{ form.eeo_text|add_class:"form-control" }}
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card-lite p-3">
+          <h2 class="h6 mb-3">Role Content</h2>
+          <label class="form-label">Role purpose</label>{{ form.role_purpose|add_class:"form-control mb-2" }}
+          <label class="form-label">Description (Markdown)</label>{{ form.description_md|add_class:"form-control mb-2" }}
+          <label class="form-label">Responsibilities (Markdown)</label>{{ form.responsibilities_md|add_class:"form-control" }}
+        </div>
+
+        <div class="card-lite p-3 mt-3">
+          <h2 class="h6 mb-3">Qualifications & Benefits</h2>
+          <label class="form-label">Required</label>{{ form.req_quals_text|add_class:"form-control mb-2" }}
+          <label class="form-label">Preferred</label>{{ form.pref_quals_text|add_class:"form-control mb-2" }}
+          <label class="form-label">Performance metrics</label>{{ form.perf_metrics_text|add_class:"form-control mb-2" }}
+          <label class="form-label">Tools</label>{{ form.tools_text|add_class:"form-control mb-3" }}
+          <div class="mb-2">
+            <label class="form-label d-block">Benefits</label>
+            {{ form.benefits_choice }}
+          </div>
+        </div>
+
+        <div class="card-lite p-3 mt-3">
+          <h2 class="h6 mb-3">Assign Employees</h2>
+          <p class="text-muted small">Select interviewers/reviewers for this job.</p>
+          {{ form.assignees|add_class:"form-select" }}
+        </div>
+      </div>
+
+      <div class="col-12 d-flex justify-content-end gap-2">
+        <a class="btn btn-light" href="{% url 'hr_dashboard' %}">Cancel</a>
+        <button class="btn btn-brand" type="submit">Publish job</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // add bootstrap classes if template filter isn't loaded
+  (function(){
+    for (const el of document.querySelectorAll("input, textarea, select")) {
+      if (!el.classList.contains("form-control") && el.type !== "checkbox" && !el.classList.contains("form-select")) {
+        el.classList.add(el.tagName === "SELECT" ? "form-select" : "form-control");
+      }
+    }
+  })();
+
+  // company -> employees dynamic load
+  const companySel = document.getElementById("id_company");
+  const assigneesSel = document.getElementById("id_assignees");
+
+  async function loadEmployees(){
+    if(!companySel.value) return;
+    const r = await fetch(`/jobs/employees-json/${companySel.value}/`);
+    const data = await r.json();
+    assigneesSel.innerHTML = "";
+    data.employees.forEach(e=>{
+      const opt = document.createElement("option");
+      opt.value = e.id; opt.textContent = e.label;
+      assigneesSel.appendChild(opt);
+    });
+  }
+  companySel?.addEventListener("change", loadEmployees);
+</script>
+{% endblock %}

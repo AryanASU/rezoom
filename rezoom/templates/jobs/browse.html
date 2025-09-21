@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Browse Jobs · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="glass p-4 p-md-5 mb-4">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-12 col-md-5">
+        <label class="form-label">Search</label>
+        <input class="form-control" type="text" name="q" value="{{ params.q }}" placeholder="role, tech, keywords">
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Mode</label>
+        <select class="form-select" name="mode">
+          <option value="">Any</option>
+          <option value="onsite"  {% if params.mode == "onsite" %}selected{% endif %}>On-site</option>
+          <option value="remote"  {% if params.mode == "remote" %}selected{% endif %}>Remote</option>
+          <option value="hybrid"  {% if params.mode == "hybrid" %}selected{% endif %}>Hybrid</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Company</label>
+        <select class="form-select" name="company">
+          <option value="">Any</option>
+          {% for c in companies %}
+            <option value="{{ c.id }}" {% if params.company|default:'' == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Min Salary</label>
+        <input class="form-control" type="number" name="min" value="{{ params.min }}">
+      </div>
+      <div class="col-12 d-flex align-items-center gap-3 mt-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="useProfile" name="profile" value="1" {% if params.profile %}checked{% endif %}>
+          <label class="form-check-label" for="useProfile">Use my profile to rank</label>
+        </div>
+        <button class="btn btn-brand ms-auto" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="row g-4">
+    {% for j in jobs %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card-lite p-3 h-100 d-flex flex-column data-enter="pop"">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            {% if j.company.logo %}
+              <img src="{{ j.company.logo.url }}" alt="{{ j.company.name }}" style="width:36px;height:36px;object-fit:cover;border-radius:8px;">
+            {% endif %}
+            <div>
+              <div class="fw-semibold">{{ j.title }}</div>
+              <div class="text-muted small">{{ j.company.name }}</div>
+            </div>
+            {% if matches.j.id %}{% endif %}
+          </div>
+          <div class="text-muted small mb-2">
+            {{ j.location_mode|capfirst }}{% if j.location_text %} · {{ j.location_text }}{% endif %}
+          </div>
+          <div class="mb-2 small">
+            {% if j.salary_min or j.salary_max %}
+              Salary: {{ j.salary_min|default:"—" }}–{{ j.salary_max|default:"—" }} {{ j.currency|default:"USD" }}/{{ j.pay_period|default:"year" }}
+            {% endif %}
+          </div>
+          {% if matches and matches.j.id %}
+            <div class="small mb-2">Match: <strong>{{ matches.j.id }}%</strong></div>
+          {% endif %}
+          <div class="mt-auto d-flex gap-2">
+            <a class="btn btn-light flex-fill" href="{% url 'job_public_detail' j.id %}">View</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="card-lite p-4 text-center text-muted data-enter="pop"">No jobs match your filters.</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

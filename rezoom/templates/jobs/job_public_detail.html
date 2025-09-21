@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · {{ job.company.name }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="glass p-4 p-md-5">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h4 mb-0">{{ job.title }}</h1>
+      <a class="btn btn-light" href="{% url 'job_browse' %}">Back</a>
+    </div>
+    <div class="text-muted mt-2">
+      {{ job.company.name }} · {{ job.location_mode|capfirst }}{% if job.location_text %} · {{ job.location_text }}{% endif %}
+    </div>
+    <hr class="my-4">
+    {% if job.role_purpose %}<h2 class="h6">Role Purpose</h2><p>{{ job.role_purpose }}</p>{% endif %}
+    {% if job.description_md %}<h2 class="h6">Description</h2><p style="white-space:pre-wrap">{{ job.description_md }}</p>{% endif %}
+    {% if job.responsibilities_md %}<h2 class="h6">Responsibilities</h2><p style="white-space:pre-wrap">{{ job.responsibilities_md }}</p>{% endif %}
+    {% if job.req_quals %}<h2 class="h6">Required Qualifications</h2><ul>{% for q in job.req_quals %}<li>{{ q }}</li>{% endfor %}</ul>{% endif %}
+    {% if job.pref_quals %}<h2 class="h6">Preferred Qualifications</h2><ul>{% for q in job.pref_quals %}<li>{{ q }}</li>{% endfor %}</ul>{% endif %}
+    {% if job.benefits %}<h2 class="h6">Benefits</h2><ul>{% for b in job.benefits %}<li>{{ b|capfirst }}</li>{% endfor %}</ul>{% endif %}
+    <div class="mt-4 d-flex gap-2">
+      <a class="btn btn-brand" href="{% url 'apply_job' job.id %}">Apply</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

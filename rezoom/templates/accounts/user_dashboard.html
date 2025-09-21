@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}User · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">Welcome, {{ request.user.first_name|default:request.user.username }}</h1>
+    <div class="d-flex gap-2">
+  <a class="btn btn-light" href="{% url 'profile_edit' %}">Edit profile</a>
+  <a class="btn btn-brand" href="{% url 'job_browse' %}">Find jobs</a>
+  <a class="btn btn-light" href="{% url 'notifications_list' %}">Notifications</a> <!-- add this -->
+    </div>
+  </div>
+
+  <div class="glass p-4">
+    <h2 class="h6 mb-3">My applications</h2>
+
+    {% if apps %}
+      <div class="table-responsive">
+        
+        <table class="table align-middle">
+         <thead>
+  <tr>
+    <th>Job</th><th>Company</th><th>Status</th><th>ATS</th><th>Applied</th><th></th>
+  </tr>
+</thead>
+<tbody>
+  {% for a in apps %}
+    <tr>
+      <td><a href="{% url 'job_public_detail' a.job.id %}">{{ a.job.title }}</a></td>
+      <td>{{ a.job.company.name }}</td>
+      <td><span class="badge bg-light text-dark">{{ a.status }}</span></td>
+      <td>
+        {% if a.ats_score %}
+          <span class="badge {% if a.ats_score >= 70 %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %}">
+            {{ a.ats_score }}%
+          </span>
+        {% else %}
+          —
+        {% endif %}
+      </td>
+      <td>{{ a.created_at|date:"M j, Y" }}</td>
+      <td class="text-end">
+        {% if a.status == "interview_pending" %}
+          <a class="btn btn-sm btn-brand" href="{% url 'schedule_invite' a.id %}">Schedule</a>
+        {% elif a.status == "interview_scheduled" %}
+          <span class="text-muted small">Awaiting confirmation</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+</tbody>
+
+
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">No applications yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Schedule Interview · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="glass p-4 p-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h5 mb-0">Schedule Interview</h1>
+      <a class="btn btn-light" href="{% url 'user_dashboard' %}">Back</a>
+    </div>
+    <p class="text-muted mb-4">
+      Job: <strong>{{ app.job.title }}</strong> — {{ app.job.company.name }}
+    </p>
+
+    {% if slots %}
+      <form method="post" class="vstack gap-3">
+        {% csrf_token %}
+
+        <div>
+          <label class="form-label">Choose a slot</label>
+          {{ form.slot }}
+          <div class="small text-muted mt-1">Showing the next 21 days.</div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label">Mode</label>
+            {{ form.mode }}
+          </div>
+          <div class="col-12 col-md-4" id="locWrap">
+            <label class="form-label">Office location (for in-person)</label>
+            {{ form.location }}
+          </div>
+          <div class="col-12 col-md-4" id="locTextWrap">
+            <label class="form-label">Room / notes</label>
+            {{ form.location_text }}
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-brand" type="submit">Request interview</button>
+          <a class="btn btn-light" href="{% url 'user_dashboard' %}">Cancel</a>
+        </div>
+      </form>
+    {% else %}
+      <div class="alert alert-info mb-0">
+        No bookable slots are available right now. Please check back later.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const modeSel = document.getElementById("id_mode");
+  const locWrap = document.getElementById("locWrap");
+  const locText = document.getElementById("locTextWrap");
+  function toggleLoc(){
+    const show = modeSel?.value === "inperson";
+    locWrap.style.display = show ? "" : "none";
+    locText.style.display = show ? "" : "none";
+  }
+  modeSel?.addEventListener("change", toggleLoc); toggleLoc();
+</script>
+{% endblock %}

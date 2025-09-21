@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Employee · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">Employee dashboard</h1>
+  <div class="d-flex gap-2">
+  <a class="btn btn-light" href="{% url 'availability_list' %}">My availability</a>
+  <a class="btn btn-brand" href="{% url 'employee_queue' %}">Review queue</a>
+  <a class="btn btn-light" href="{% url 'pending_confirms' %}">Pending confirmations</a> <!-- add this -->
+  <a class="btn btn-light" href="{% url 'notifications_list' %}">Notifications</a>      <!-- optional -->
+</div>
+
+  </div>
+
+  
+
+  <div class="glass p-4 mb-4">
+    <h2 class="h6 mb-3">Invitations to handle jobs</h2>
+    {% with invites=request.user.employee.assignments.all %}
+      {% if invites %}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead><tr><th>Job</th><th>Company</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for a in invites %}
+              <tr>
+                <td>{{ a.job.title }}</td>
+                <td>{{ a.job.company.name }}</td>
+                <td>{{ a.status }}</td>
+                <td>
+                  {% if a.status == "invited" %}
+                    <form class="d-inline" method="post" action="{% url 'assignee_response' a.id %}">{% csrf_token %}
+                      <input type="hidden" name="action" value="accept">
+                      <button class="btn btn-sm btn-success">Accept</button>
+                    </form>
+                    <form class="d-inline" method="post" action="{% url 'assignee_response' a.id %}">{% csrf_token %}
+                      <input type="hidden" name="action" value="decline">
+                      <button class="btn btn-sm btn-outline-secondary">Decline</button>
+                    </form>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No invitations yet.</p>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="glass p-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <h2 class="h6 mb-0">Review queue</h2>
+      <a class="btn btn-sm btn-brand" href="{% url 'build_queue' %}">Build my queue</a>
+    </div>
+    <p class="text-muted small mt-2 mb-0">Click “Build my queue” to pull new applications for jobs you accepted.</p>
+  </div>
+</div>
+{% endblock %}

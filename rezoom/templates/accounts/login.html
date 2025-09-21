@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in · Rezoom</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* =========================
+       New Light Theme Styling
+       ========================= */
+    :root {
+      --bg-color: #f4f7f5;
+      --card-color: #ffffff;
+      --text-color: #1a1a1a;
+      --muted-color: #6c757d;
+      --primary-color: #007aff;
+      --primary-hover: #0056b3;
+      --border-color: #e9ecef;
+      --shadow: 0px 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      /* Subtle moving gradient background */
+      background: linear-gradient(135deg, #f4f7f5, #e8f1f2, #f4f7f5);
+      background-size: 200% 200%;
+      animation: gradient-flow 15s ease infinite;
+    }
+
+    @keyframes gradient-flow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Layout & Card Styling */
+    .login-wrapper {
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .login-card {
+      background-color: var(--card-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Content & Typography */
+    .brand-logo {
+      display: inline-block;
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .pitch-header {
+      color: var(--text-color);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .pitch-subheader {
+      color: var(--muted-color);
+      max-width: 600px;
+      margin: 0 auto 3rem auto;
+      line-height: 1.6;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Button Styling */
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      background-color: #fff;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-google:hover {
+      background-color: #f8f9fa;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn-google img {
+      margin-right: 12px;
+    }
+
+    /* Initial state for animations (invisible) */
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper text-center">
+    
+    <div class="pitch-content">
+      <div class="brand-logo" data-animate>Rezoom</div>
+      <h1 class="pitch-header display-5" data-animate>Hire faster. Apply smarter.</h1>
+      <p class="pitch-subheader" data-animate>
+        Sign in to connect with candidates, manage applications, and streamline your entire hiring process.
+      </p>
+    </div>
+
+    <div class="login-card text-start" data-animate>
+      <h2 class="card-title">Welcome back</h2>
+      <p class="text-muted mb-4">Sign in to continue to your dashboard.</p>
+      
+      <a href="{{ oauth_url|default:'/auth/login/google-oauth2/?next=/portal/' }}"
+   class="btn-neo w-100 mb-2" style="position:relative;z-index:1">
+  <span style="display:inline-flex;align-items:center;gap:.5rem">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20" alt="">
+    Continue with Google
+  </span>
+</a>
+
+<div class="small text-center text-muted mt-2">
+  Target: <code>{{ oauth_url|default:'/auth/login/google-oauth2/?next=/portal/' }}</code>
+</div>
+
+      <p class="small text-center text-muted mt-3">
+        By continuing you agree to our Terms of Service.
+      </p>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <script>
+    // ===================================
+    //  New Animation Script
+    // ===================================
+    document.addEventListener("DOMContentLoaded", () => {
+      // Create a GSAP timeline for a sequence of animations
+      const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
+
+      // Animate elements in a staggered sequence
+      tl.to("[data-animate]", {
+        opacity: 1,
+        y: 0,
+        stagger: 0.15, // Time between each element's animation
+        delay: 0.2
+      });
+    });
+  </script>
+
+</body>
+</html>

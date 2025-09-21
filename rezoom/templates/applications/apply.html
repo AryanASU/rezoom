@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Apply · {{ job.title }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="glass p-4 p-md-5">
+    <h1 class="h5 mb-3">Apply to {{ job.title }} at {{ job.company.name }}</h1>
+    <p class="text-muted">We’ll use your profile details. You can upload a different resume for this job, or we’ll use the one in your profile.</p>
+    <form method="post" enctype="multipart/form-data" class="vstack gap-3">
+      {% csrf_token %}
+      <div>
+        <label class="form-label">Resume (optional)</label>
+        {{ form.resume_file }}
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{% url 'job_public_detail' job.id %}">Back</a>
+        <button class="btn btn-brand" type="submit">Submit application</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

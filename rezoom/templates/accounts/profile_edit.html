@@ -1,0 +1,179 @@
+{% load form_extras %}
+{% extends "base.html" %}
+{% block title %}Edit Profile · Rezoom{% endblock %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="glass p-4 p-md-5 data-enter="up"">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h1 class="h4 m-0">Edit Profile</h1>
+      <a class="btn btn-light" href="{% url 'user_dashboard' %}">Back</a>
+    </div>
+
+    <form id="profileForm" method="post" enctype="multipart/form-data" class="row g-4">
+      {% csrf_token %}
+
+      <!-- Left: identity -->
+      <div class="col-lg-6">
+        <div class="card-lite p-3 mb-3">
+          <h2 class="h6 mb-3">Personal</h2>
+          <div class="mb-3">
+            <label class="form-label">Profile Photo</label>
+            {{ form.profile_photo }}
+          </div>
+          <div class="row g-3">
+            <div class="col">
+              <label class="form-label">First name</label>
+              {{ form.first_name|add_class:"form-control" }}
+            </div>
+            <div class="col">
+              <label class="form-label">Last name</label>
+              {{ form.last_name|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col">
+              <label class="form-label">Birthdate</label>
+              {{ form.birthdate|add_class:"form-control" }}
+            </div>
+            <div class="col">
+              <label class="form-label">Gender</label>
+              {{ form.gender|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Address</label>
+            {{ form.address|add_class:"form-control" }}
+          </div>
+        </div>
+
+        <div class="card-lite p-3">
+          <h2 class="h6 mb-3">Files & Links</h2>
+          <div class="mb-3">
+            <label class="form-label">Resume</label>
+            {{ form.resume }}
+          </div>
+          <div class="row g-3">
+            <div class="col">
+              <label class="form-label">Contract Type</label>
+              {{ form.contract_type|add_class:"form-control" }}
+            </div>
+            <div class="col">
+              <label class="form-label">Visa Status</label>
+              {{ form.visa_status|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">GitHub Profile</label>
+            {{ form.github_url|add_class:"form-control" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: professional -->
+      <div class="col-lg-6">
+        <div class="card-lite p-3 mb-3">
+          <h2 class="h6 mb-3">Professional</h2>
+          <div class="mb-3">
+            <label class="form-label">Skills (comma-separated)</label>
+            {{ form.skills_text|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Interests (comma-separated)</label>
+            {{ form.interests_text|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Languages (comma-separated)</label>
+            {{ form.languages_text|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Education (one per line)</label>
+            {{ form.education_text|add_class:"form-control" }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Experience (one per line)</label>
+            {{ form.experience_text|add_class:"form-control" }}
+          </div>
+        </div>
+
+        <!-- Projects builder -->
+        <div class="card-lite p-3">
+          <h2 class="h6 mb-3">Projects</h2>
+          <div id="projectsList" class="vstack gap-2"></div>
+          <button type="button" id="addProject" class="btn btn-brand mt-2">Add project</button>
+          {{ form.projects_json }} <!-- hidden -->
+        </div>
+      </div>
+
+      <div class="col-12 d-flex gap-2 justify-content-end">
+        <a class="btn btn-light" href="{% url 'user_dashboard' %}">Cancel</a>
+        <button class="btn btn-brand" type="submit">Save profile</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // helper to add bootstrap classes to Django widgets without a custom filter
+  (function(){
+    for (const el of document.querySelectorAll("input[type='text'], input[type='date'], input[type='url'], textarea, select")) {
+      if (!el.classList.contains("form-control")) el.classList.add("form-control");
+    }
+  })();
+
+  // Projects UI
+  const projectsList = document.getElementById("projectsList");
+  const hidden = document.getElementById("id_projects_json");
+  const addBtn = document.getElementById("addProject");
+
+  function projectRow(p={title:'', technologies:[], github:''}){
+    const wrap = document.createElement("div");
+    wrap.className = "p-3 border rounded-3";
+    wrap.innerHTML = `
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control proj-title" value="${p.title||''}">
+        </div>
+        <div class="col-12 col-md-5">
+          <label class="form-label">Technologies (comma-separated)</label>
+          <input type="text" class="form-control proj-tech" value="${(p.technologies||[]).join(', ')}">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">GitHub Link</label>
+          <input type="url" class="form-control proj-git" value="${p.github||''}">
+        </div>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button type="button" class="btn btn-sm btn-light remove-proj">Remove</button>
+      </div>
+    `;
+    wrap.querySelector(".remove-proj").onclick = () => wrap.remove();
+    return wrap;
+  }
+
+  function loadInitial(){
+    let data = [];
+    try { data = JSON.parse(hidden.value || "[]"); } catch (e) { data = []; }
+    data.forEach(p => projectsList.appendChild(projectRow(p)));
+  }
+
+  addBtn.addEventListener("click", () => projectsList.appendChild(projectRow()));
+
+  document.getElementById("profileForm").addEventListener("submit", () => {
+    const rows = projectsList.querySelectorAll(".border.rounded-3");
+    const payload = [];
+    rows.forEach(w => {
+      const title = w.querySelector(".proj-title").value.trim();
+      const techs = w.querySelector(".proj-tech").value.split(",").map(s=>s.trim()).filter(Boolean);
+      const github = w.querySelector(".proj-git").value.trim();
+      if (title || techs.length || github) payload.push({title, technologies: techs, github});
+    });
+    hidden.value = JSON.stringify(payload);
+  });
+
+  loadInitial();
+</script>
+{% endblock %}

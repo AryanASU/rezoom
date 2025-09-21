@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="glass p-4 p-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h4 m-0">{{ job.title }} — {{ job.company.name }}</h1>
+      <a class="btn btn-light" href="{% url 'hr_dashboard' %}">Back</a>
+    </div>
+    {% if stats %}
+  <div class="small text-muted mb-2">
+    Applications: {{ stats.apps_total }} · ATS pass: {{ stats.ats_pass }} · Below: {{ stats.ats_below }}
+  </div>
+{% endif %}
+
+    <p class="text-muted mb-4">{{ job.location_mode|capfirst }} · {{ job.emp_type }} · Deadline: {{ job.deadline|default:"—" }}</p>
+    <h2 class="h6">Assigned employees</h2>
+    <ul class="mb-0">
+      {% for a in assignees %}
+        <li>{{ a.employee.user.get_full_name|default:a.employee.user.username }} — {{ a.employee.job_role }} ({{ a.status }})</li>
+      {% empty %}
+        <li class="text-muted">None assigned.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

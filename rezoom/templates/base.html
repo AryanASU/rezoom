@@ -1,0 +1,76 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{% block title %}Rezoom{% endblock %}</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- App CSS (app-scoped static path) -->
+  <link rel="stylesheet" href="{% static 'accounts/css/rezoom.css' %}">
+
+  <!-- Fail-safe: mark page JS-ready ASAP (prevents hidden content if scripts/CDNs fail) -->
+  <script>
+    (function(){
+      var ready=function(){ try{ document.body.classList.add('js-ready'); }catch(e){} };
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', ready); }
+      else { ready(); }
+    })();
+  </script>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top nav with notifications bell -->
+  <nav class="py-3">
+    <div class="container d-flex align-items-center justify-content-between">
+      <a class="text-decoration-none fw-bold logo" href="/">Rezoom</a>
+      <div class="d-flex align-items-center gap-3">
+        {% if request.user.is_authenticated %}
+          <a class="position-relative text-decoration-none" href="{% url 'notifications_list' %}" title="Notifications">
+            🛎️
+            {% if unread_count|default:0 %}
+              <span class="badge bg-danger rounded-pill"
+                    style="position:absolute;top:-6px;right:-10px;font-size:.7rem;">
+                {{ unread_count }}
+              </span>
+            {% endif %}
+          </a>
+          <a class="btn btn-sm btn-light" href="{% url 'logout' %}">Logout</a>
+        {% else %}
+          <a class="btn btn-sm btn-brand" href="{% url 'login' %}">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  {% if messages %}
+    <div class="container mt-2">
+      {% for m in messages %}
+        <div class="alert alert-{{ m.tags|default:'info' }} mb-2" role="alert">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- JS: Bootstrap, then optional libs, then app JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+
+  <!-- Optional (safe to fail) -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/lenis@1.1.14/bundled/lenis.min.js" defer></script>
+
+  <!-- App JS (app-scoped static path) -->
+  <script src="{% static 'accounts/js/rezoom.js' %}" defer></script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

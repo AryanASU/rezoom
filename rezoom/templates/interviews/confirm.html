@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Confirm Interview · Rezoom{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="glass p-4 p-md-5">
+    <h1 class="h5 mb-3">Confirm Interview</h1>
+    <p class="text-muted">Job: {{ iv.application.job.title }} — {{ iv.application.job.company.name }}</p>
+    <p class="text-muted">Candidate: {{ iv.application.user.username }}</p>
+    <p class="mb-3">{{ iv.start|date:"M j, Y g:i a" }} – {{ iv.end|date:"g:i a" }} · {{ iv.mode|capfirst }}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-brand" type="submit">Confirm</button>
+      <a class="btn btn-light" href="{% url 'pending_confirms' %}">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
